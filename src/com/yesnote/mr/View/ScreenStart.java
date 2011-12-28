@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2011 See AUTHORS file.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 package com.yesnote.mr.View;
 
 import com.badlogic.gdx.Gdx;
@@ -20,88 +5,105 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GLCommon;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector3;
+import com.yesnote.mr.Assets;
+import com.yesnote.mr.BoundryTester;
 import com.yesnote.mr.Game;
+import com.yesnote.mr.World;
+import com.yesnote.mr.Object.StaticObject;
+import com.yesnote.mr.Object.UFO;
 
 public class ScreenStart extends Screen {
-	OrthographicCamera guiCam;
+	OrthographicCamera cam;
+	static final float CAM_WIDTH = World.WORLD_WIDTH;
+	static final float CAM_HEIGHT = World.WORLD_HEIGHT;
 	SpriteBatch batcher;
-	Rectangle soundBounds;
-	Rectangle playBounds;
-	Rectangle highscoresBounds;
-	Rectangle helpBounds;
-	Vector3 touchPoint;
 
-	public ScreenStart (Game game) {
+	StaticObject startButton;
+	StaticObject settingButton;
+	StaticObject aboutButton;
+	UFO ufo;
+	float buttonX = CAM_WIDTH / 4;
+	float buttonY = (CAM_HEIGHT / 5) * 2;
+
+	public ScreenStart(Game game) {
 		super(game);
-		guiCam = new OrthographicCamera(320, 480);		
-		guiCam.position.set(320 / 2, 480 / 2, 0);
+		this.ufo = new UFO(0, 0, 0, 0);
+		this.startButton = new StaticObject(buttonX, buttonY, 0, 0, 0);
+		this.settingButton = new StaticObject(buttonX, buttonY + 10, 0, 0, 0);
+		this.aboutButton = new StaticObject(buttonX, buttonY + 20, 0, 0, 0);
+
+		cam = new OrthographicCamera(CAM_WIDTH, CAM_HEIGHT);
+		cam.position.set(CAM_WIDTH, CAM_HEIGHT, 0);
+
 		batcher = new SpriteBatch();
-		soundBounds = new Rectangle(0, 0, 64, 64);
-		playBounds = new Rectangle(160 - 150, 200 + 18, 300, 36);
-		highscoresBounds = new Rectangle(160 - 150, 200 - 18, 300, 36);
-		helpBounds = new Rectangle(160 - 150, 200 - 18 - 36, 300, 36);
-		touchPoint = new Vector3();
 	}
 
-	@Override public void update (float deltaTime) {
-		if (Gdx.input.justTouched()) {
-			guiCam.unproject(touchPoint.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-
-			if (OverlapTester.pointInRectangle(playBounds, touchPoint.x, touchPoint.y)) {
-				Assets.playSound(Assets.clickSound);
-				game.setScreen(new GameScreen(game));
+	@Override
+	public void update(float deltaTime) {
+		if (ufo.position.x >= startButton.position.x) {
+			if (BoundryTester.RectangleBoundryTest(ufo.bounds,
+					startButton.bounds)) {
+				Assets.playSound(Assets.hitSound);
+				game.setScreen(new ScreenGame(game));
 				return;
 			}
-			if (OverlapTester.pointInRectangle(highscoresBounds, touchPoint.x, touchPoint.y)) {
-				Assets.playSound(Assets.clickSound);
-				game.setScreen(new HighscoresScreen(game));
+		}
+		if (ufo.position.x >= settingButton.position.x) {
+			if (BoundryTester.RectangleBoundryTest(ufo.bounds,
+					settingButton.bounds)) {
+				Assets.playSound(Assets.hitSound);
+				game.setScreen(new ScreenSetting(game));
 				return;
 			}
-			if (OverlapTester.pointInRectangle(helpBounds, touchPoint.x, touchPoint.y)) {
-				Assets.playSound(Assets.clickSound);
-				game.setScreen(new HelpScreen(game));
+		}
+		if (ufo.position.x >= aboutButton.position.x) {
+			if (BoundryTester.RectangleBoundryTest(ufo.bounds,
+					aboutButton.bounds)) {
+				Assets.playSound(Assets.hitSound);
+				game.setScreen(new ScreenAbout(game));
 				return;
-			}
-			if (OverlapTester.pointInRectangle(soundBounds, touchPoint.x, touchPoint.y)) {
-				Assets.playSound(Assets.clickSound);
-				Settings.soundEnabled = !Settings.soundEnabled;
-				if (Settings.soundEnabled)
-					Assets.music.play();
-				else
-					Assets.music.pause();
 			}
 		}
 	}
 
-	@Override public void present (float deltaTime) {
+	@Override
+	public void present(float deltaTime) {
 		GLCommon gl = Gdx.gl;
 		gl.glClearColor(1, 0, 0, 1);
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		guiCam.update();
-		batcher.setProjectionMatrix(guiCam.combined);		
+		cam.update();
+		batcher.setProjectionMatrix(cam.combined);
 
 		batcher.disableBlending();
 		batcher.begin();
-		batcher.draw(Assets.backgroundRegion, 0, 0, 320, 480);
+		batcher.draw(Assets.background, 0, 0, World.WORLD_WIDTH,
+				World.WORLD_HEIGHT);
 		batcher.end();
 
 		batcher.enableBlending();
 		batcher.begin();
-		batcher.draw(Assets.logo, 160 - 274 / 2, 480 - 10 - 142, 274, 142);
-		batcher.draw(Assets.mainMenu, 10, (int)(200 - 110 / 2), 300, 110);
-		batcher.draw(Settings.soundEnabled ? Assets.soundOn : Assets.soundOff, 0, 0, 64, 64);
-		batcher.end();	
+		batcher.draw(Assets.logo, 0, CAM_HEIGHT - 256, CAM_WIDTH, CAM_WIDTH / 2);
+		batcher.draw(Assets.startButton, startButton.position.x, startButton.position.y, CAM_WIDTH / 2, CAM_WIDTH / 8);
+		batcher.draw(Assets.settingButton, settingButton.position.x, settingButton.position.y, CAM_WIDTH / 2, CAM_WIDTH / 8);
+		batcher.draw(Assets.aboutButton, aboutButton.position.x, aboutButton.position.y, CAM_WIDTH / 2, CAM_WIDTH / 8);
+		batcher.end();
 	}
 
-	@Override public void pause () {
-		Settings.save();
+	@Override
+	public void pause() {
+		// TODO Auto-generated method stub
+
 	}
 
-	@Override public void resume () {
+	@Override
+	public void resume() {
+		// TODO Auto-generated method stub
+
 	}
 
-	@Override public void dispose () {
+	@Override
+	public void dispose() {
+		// TODO Auto-generated method stub
+
 	}
 }

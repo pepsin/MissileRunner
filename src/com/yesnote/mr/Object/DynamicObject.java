@@ -2,7 +2,7 @@ package com.yesnote.mr.Object;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class DynamicObject extends Object{
+public class DynamicObject extends StaticObject{
     public Vector2 velocity;          //The speed has direction
     public final Vector2 accel;				//The accelerator
     public float degree;

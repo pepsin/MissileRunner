@@ -9,7 +9,7 @@ import android.util.Log;
 import com.badlogic.gdx.math.Vector2;
 import com.yesnote.mr.Object.Meteor;
 import com.yesnote.mr.Object.Missile;
-import com.yesnote.mr.Object.Rocket;
+import com.yesnote.mr.Object.UFO;
 
 public class World {
 	public interface WorldListener {
@@ -23,7 +23,7 @@ public class World {
 	public final WorldListener listener;
 	public final Random rand;
 
-	public final Rocket rocket;
+	public final UFO ufo;
 	public final List<Meteor> meteors;
 	public final List<Missile> missiles;
 
@@ -34,7 +34,7 @@ public class World {
 	public int state;
 
 	public World(WorldListener listener) {
-		this.rocket = new Rocket(208, 363, 0, 0);
+		this.ufo = new UFO(208, 363, 0, 0);
 		this.meteors = new ArrayList<Meteor>();
 		this.missiles = new ArrayList<Missile>();
 		rand = new Random();
@@ -48,7 +48,8 @@ public class World {
 
 	public void generateMeteor() {
 		// Needs modify for a smooth hard curve
-		float randomWidth = rand.nextFloat() * (World.WORLD_WIDTH - Meteor.METEOR_WIDTH);
+		float randomWidth = rand.nextFloat()
+				* (World.WORLD_WIDTH - Meteor.METEOR_WIDTH);
 		float x = randomWidth;
 		float y = WORLD_HEIGHT;
 		float degree = 0;
@@ -60,7 +61,7 @@ public class World {
 	}
 
 	public void generateMissile() {
-		// Vector2 temp = new Vector2(rocket.position.x, rocket.position.y);
+		// Vector2 temp = new Vector2(ufo.position.x, ufo.position.y);
 
 		float x = rand.nextFloat() * World.WORLD_WIDTH;
 		float y = 0;
@@ -76,54 +77,29 @@ public class World {
 	}
 
 	public void update(float deltaTime, float accelX, float accelY) {
-		updateRocket(deltaTime, accelX, accelY);
+		updateUFO(deltaTime, accelX, accelY);
 		updateMeteor(deltaTime);
 		updateMissile(deltaTime);
-		if (rocket.state != Rocket.ROCKET_STATE_HIT) {
+		if (ufo.state != UFO.ROCKET_STATE_HIT) {
 			checkCollisions();
 		}
 		checkGameOver();
 	}
 
-	private void updateRocket(float deltaTime, float accelX, float accelY) {
-		if (rocket.state != Rocket.ROCKET_STATE_HIT) {
-			double x; // Use this to change the x axis's velocity,in case the
-						// velocity in the demand direction is not change
-			if (accelX <= 5 && accelX > 1) {
-				rocket.degree = 30;
-			} else if (accelX > 5 && accelX <= 10) {
-				rocket.degree = 45;
-			} else if (accelX < -1 && accelX >= -5) {
-				rocket.degree = -30;
-			} else if (accelX < -5 && accelX >= -10) {
-				rocket.degree = -45;
-			} else {
-				rocket.degree = 0;
-			}
-			x = Math.sin(6.28 * rocket.degree / 360); // Change the degree into
-														// radian.
-			rocket.velocity.x = -(float) (3 * x * Rocket.ROCKET_VELOCITY);
-
-			if (accelY >= -5 && accelY < 5) {
-				rocket.velocity.y = Rocket.ROCKET_VELOCITY;
-			} else if (accelY >= 5 && accelY <= 10 || accelY < -5
-					&& accelY > -10) {
-				rocket.velocity.y = -Rocket.ROCKET_VELOCITY;
-			} else {
-				rocket.velocity.y = 0;
-			}
-		}
-		rocket.update(deltaTime);
+	private void updateUFO(float deltaTime, float accelX, float accelY) {
+		UfoController ufoControler = new UfoController();
+		ufoControler.control(ufo, accelX, accelY);
+		ufo.update(deltaTime);
 	}
 
 	private void updateMissile(float deltaTime) {
 		int len = missiles.size();
 		for (int i = 0; i < len; i++) {
 			Missile missile = missiles.get(i);
-			Vector2 temp = rocket.position;
-			if (missile.position.x > temp.x + (Rocket.ROCKET_WIDTH / 2)) {
+			Vector2 temp = ufo.position;
+			if (missile.position.x > temp.x + (UFO.ROCKET_WIDTH / 2)) {
 				missile.velocity.x = (float) (-Missile.MISSILE_VELOCITY * 0.8);
-			} else if (missile.position.x < temp.x + (Rocket.ROCKET_WIDTH / 2)) {
+			} else if (missile.position.x < temp.x + (UFO.ROCKET_WIDTH / 2)) {
 				missile.velocity.x = (float) (Missile.MISSILE_VELOCITY * 0.8);
 			} else {
 				missile.velocity.x = 0;
@@ -141,7 +117,7 @@ public class World {
 				len = missiles.size();
 			}
 		}
-		int x = (int) rocket.stateTime;
+		int x = (int) ufo.stateTime;
 		int y = 1 + (x / 30);
 		if (missiles.size() < y) {
 			generateMissile();
@@ -153,12 +129,12 @@ public class World {
 		for (int i = 0; i < len; i++) {
 			Meteor meteor = meteors.get(i);
 			meteor.update(deltaTime);
-			if (meteor.position.y < - Meteor.METEOR_HEIGHT) {
+			if (meteor.position.y < -Meteor.METEOR_HEIGHT) {
 				meteors.remove(i);
 				len = meteors.size();
 			}
 		}
-		int x = (int) rocket.stateTime;
+		int x = (int) ufo.stateTime;
 		int y = 1 + (x / 15);
 		if (meteors.size() < y) {
 			generateMeteor();
@@ -166,8 +142,8 @@ public class World {
 	}
 
 	private void checkCollisions() {
-		// Check whether Rocket hit meteor or missile
-		checkRocketHitShit();
+		// Check whether UFO hit meteor or missile
+		checkUFOHitShit();
 		// Check whether Missile hit the meteor
 		checkMissileHitMeteor();
 	}
@@ -179,7 +155,7 @@ public class World {
 			for (int j = 0; j < meteorLen; j++) {
 				Missile missile = missiles.get(i);
 				Meteor meteor = meteors.get(j);
-				if (missile.position.y < meteor.position.y) {
+				if (missile.position.y <= meteor.position.y) {
 					if (BoundryTester.RectangleBoundryTest(missile.bounds,
 							meteor.bounds)) {
 						missile.state = Missile.MISSILE_STATE_HIT;
@@ -192,14 +168,14 @@ public class World {
 		}
 	}
 
-	private void checkRocketHitShit() {
+	private void checkUFOHitShit() {
 		int meteorLen = meteors.size();
 		for (int i = 0; i < meteorLen; i++) {
 			Meteor meteor = meteors.get(i);
-			if (rocket.position.y > meteor.position.y) {
-				if (BoundryTester.RectangleBoundryTest(rocket.bounds,
+			if (ufo.position.y >= meteor.position.y) {
+				if (BoundryTester.RectangleBoundryTest(ufo.bounds,
 						meteor.bounds)) {
-					rocket.hitShit();
+					ufo.hitShit();
 					break;
 				}
 			}
@@ -207,10 +183,10 @@ public class World {
 		int missileLen = missiles.size();
 		for (int i = 0; i < missileLen; i++) {
 			Missile missile = missiles.get(i);
-			if (rocket.position.y > missile.position.y) {
-				if (BoundryTester.RectangleBoundryTest(rocket.bounds,
-						missile.bounds)) {
-					rocket.hitShit();
+			if (missile.position.y >= ufo.position.y) {
+				if (BoundryTester.RectangleBoundryTest(missile.bounds,
+						ufo.bounds)) {
+					ufo.hitShit();
 					break;
 				}
 			}

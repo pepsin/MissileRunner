@@ -8,12 +8,12 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.yesnote.mr.Object.Meteor;
 import com.yesnote.mr.Object.Missile;
-import com.yesnote.mr.Object.Rocket;
+import com.yesnote.mr.Object.UFO;
 
 public class WorldRenderer {
 	private static final String TAG = "WorldRederer";
-	static final float CAM_WIDTH = 480;
-	static final float CAM_HEIGHT = 854;
+	static final float CAM_WIDTH = World.WORLD_WIDTH;
+	static final float CAM_HEIGHT = World.WORLD_HEIGHT;
 	World world;
 	OrthographicCamera cam;
 	SpriteBatch batch;
@@ -27,9 +27,9 @@ public class WorldRenderer {
 
 	public void render() {
 		/*
-		 * if (world.rocket.position.y > cam.position.y ||
-		 * world.rocket.position.y < -cam.position.y) { cam.position.y =
-		 * world.rocket.position.y; Log.d(TAG, "cam's y position = " +
+		 * if (world.ufo.position.y > cam.position.y ||
+		 * world.ufo.position.y < -cam.position.y) { cam.position.y =
+		 * world.ufo.position.y; Log.d(TAG, "cam's y position = " +
 		 * cam.position.y); }
 		 */
 		cam.update();
@@ -49,33 +49,33 @@ public class WorldRenderer {
 	public void renderObject() {
 		batch.enableBlending();
 		batch.begin();
-		renderRocket();
+		renderUFO();
 		renderMeteor();
 		renderMissile();
 		batch.end();
 	}
 
-	public void renderRocket() {
+	public void renderUFO() {
 		Texture keyFrame;
-		Log.d(TAG, "render rocket success");
-		switch (world.rocket.state) { // Use this to change the image of rocket
+		Log.d(TAG, "render ufo success");
+		switch (world.ufo.state) { // Use this to change the image of ufo
 										// to present the turning left and right
 										// style~
-		case Rocket.ROCKET_STATE_GO:
-			keyFrame = Assets.rocket;
+		case UFO.ROCKET_STATE_GO:
+			keyFrame = Assets.ufo;
 			break;
-		case Rocket.ROCKET_STATE_HIT:
-			keyFrame = Assets.rocket;
+		case UFO.ROCKET_STATE_HIT:
+			keyFrame = Assets.ufo;
 			break;
 		default:
-			keyFrame = Assets.rocket;
+			keyFrame = Assets.ufo;
 			break;
 		}
-		Sprite rocket = new Sprite(keyFrame);
-		rocket.rotate(world.rocket.degree); // Degfine by degrees. "-180 ~ 180"
-		rocket.setPosition(world.rocket.position.x, world.rocket.position.y);
-		rocket.setSize(Rocket.ROCKET_WIDTH, Rocket.ROCKET_HEIGHT);
-		rocket.draw(batch);
+		Sprite ufo = new Sprite(keyFrame);
+		ufo.rotate(world.ufo.degree); // Degfine by degrees. "-180 ~ 180"
+		ufo.setPosition(world.ufo.position.x, world.ufo.position.y);
+		ufo.setSize(UFO.ROCKET_WIDTH, UFO.ROCKET_HEIGHT);
+		ufo.draw(batch);
 	}
 
 	public void renderMeteor() {
