@@ -1,5 +1,7 @@
 package com.yesnote.mr;
 
+import android.util.Log;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,6 +29,9 @@ public class Assets {
     
     public static void load(){
     	logo = new Texture(Gdx.files.internal("logo.png"));
+        startButton = new Texture(Gdx.files.internal("startButton.png"));
+        settingButton = new Texture(Gdx.files.internal("settingButton.png"));
+        aboutButton = new Texture(Gdx.files.internal("aboutButton.png"));
         ufo = new Texture(Gdx.files.internal("ufo.png"));
         background = new Texture(Gdx.files.internal("tbackground.png"));
         meteor = new Texture(Gdx.files.internal("testrock.png"));
@@ -36,11 +41,10 @@ public class Assets {
         meteor04 = new Texture(Gdx.files.internal("mfour.png"));
         meteor05 = new Texture(Gdx.files.internal("mfive.png"));
         missile = new Texture(Gdx.files.internal("missile.png"));
-        startButton = new Texture(Gdx.files.internal("startButton.png"));
-        settingButton = new Texture(Gdx.files.internal("settingButton.png"));
-        aboutButton = new Texture(Gdx.files.internal("aboutButton.png"));
+  
+        Log.d("Hello", "Hello");
         
-        hitSound = Gdx.audio.newSound(Gdx.files.internal(""));//TODO
+        //hitSound = Gdx.audio.newSound(Gdx.files.internal(""));//TODO
     }
     public static void playSound(Sound sound){
 

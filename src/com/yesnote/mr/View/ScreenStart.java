@@ -29,11 +29,11 @@ public class ScreenStart extends Screen {
 		super(game);
 		this.ufo = new UFO(0, 0, 0, 0);
 		this.startButton = new StaticObject(buttonX, buttonY, 0, 0, 0);
-		this.settingButton = new StaticObject(buttonX, buttonY + 10, 0, 0, 0);
-		this.aboutButton = new StaticObject(buttonX, buttonY + 20, 0, 0, 0);
+		this.settingButton = new StaticObject(buttonX, buttonY - CAM_HEIGHT / 8 - 10, 0, 0, 0);
+		this.aboutButton = new StaticObject(buttonX, buttonY - CAM_HEIGHT / 4 - 10, 0, 0, 0);
 
 		cam = new OrthographicCamera(CAM_WIDTH, CAM_HEIGHT);
-		cam.position.set(CAM_WIDTH, CAM_HEIGHT, 0);
+		this.cam.position.set(CAM_WIDTH / 2, CAM_HEIGHT / 2, 0);
 
 		batcher = new SpriteBatch();
 	}
