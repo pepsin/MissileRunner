@@ -1,7 +1,6 @@
 package com.yesnote.mr;
 
 import com.yesnote.mr.View.Screen;
-import com.yesnote.mr.View.ScreenGame;
 import com.yesnote.mr.View.ScreenStart;
 
 

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.yesnote.mr.Assets;
 import com.yesnote.mr.BoundryTester;
 import com.yesnote.mr.Game;
+import com.yesnote.mr.UfoController;
 import com.yesnote.mr.World;
 import com.yesnote.mr.Object.StaticObject;
 import com.yesnote.mr.Object.UFO;
@@ -27,10 +28,10 @@ public class ScreenStart extends Screen {
 
 	public ScreenStart(Game game) {
 		super(game);
-		this.ufo = new UFO(0, 0, 0, 0);
-		this.startButton = new StaticObject(buttonX, buttonY, 0, 0, 0);
-		this.settingButton = new StaticObject(buttonX, buttonY - CAM_HEIGHT / 8 - 10, 0, 0, 0);
-		this.aboutButton = new StaticObject(buttonX, buttonY - CAM_HEIGHT / 4 - 10, 0, 0, 0);
+		this.ufo = new UFO(buttonX - UFO.ROCKET_WIDTH - 10, buttonY, 0, 0);
+		this.startButton = new StaticObject(buttonX, buttonY, CAM_WIDTH / 2, CAM_WIDTH / 8, 0);
+		this.settingButton = new StaticObject(buttonX, buttonY - CAM_HEIGHT / 8 - 10, CAM_WIDTH / 2, CAM_WIDTH / 8, 0);
+		this.aboutButton = new StaticObject(buttonX, buttonY - CAM_HEIGHT / 4 - 10, CAM_WIDTH / 2, CAM_WIDTH / 8, 0);
 
 		cam = new OrthographicCamera(CAM_WIDTH, CAM_HEIGHT);
 		this.cam.position.set(CAM_WIDTH / 2, CAM_HEIGHT / 2, 0);
@@ -40,10 +41,14 @@ public class ScreenStart extends Screen {
 
 	@Override
 	public void update(float deltaTime) {
+		UfoController ufoControler = new UfoController();
+		ufoControler.control(ufo, Gdx.input.getAccelerometerX(), Gdx.input.getAccelerometerY());
+		ufo.update(deltaTime);
+		
 		if (ufo.position.x >= startButton.position.x) {
 			if (BoundryTester.RectangleBoundryTest(ufo.bounds,
 					startButton.bounds)) {
-				Assets.playSound(Assets.hitSound);
+				//Assets.playSound(Assets.hitSound);
 				game.setScreen(new ScreenGame(game));
 				return;
 			}
@@ -51,7 +56,7 @@ public class ScreenStart extends Screen {
 		if (ufo.position.x >= settingButton.position.x) {
 			if (BoundryTester.RectangleBoundryTest(ufo.bounds,
 					settingButton.bounds)) {
-				Assets.playSound(Assets.hitSound);
+				//Assets.playSound(Assets.hitSound);
 				game.setScreen(new ScreenSetting(game));
 				return;
 			}
@@ -59,7 +64,7 @@ public class ScreenStart extends Screen {
 		if (ufo.position.x >= aboutButton.position.x) {
 			if (BoundryTester.RectangleBoundryTest(ufo.bounds,
 					aboutButton.bounds)) {
-				Assets.playSound(Assets.hitSound);
+				//Assets.playSound(Assets.hitSound);
 				game.setScreen(new ScreenAbout(game));
 				return;
 			}
@@ -86,6 +91,7 @@ public class ScreenStart extends Screen {
 		batcher.draw(Assets.startButton, startButton.position.x, startButton.position.y, CAM_WIDTH / 2, CAM_WIDTH / 8);
 		batcher.draw(Assets.settingButton, settingButton.position.x, settingButton.position.y, CAM_WIDTH / 2, CAM_WIDTH / 8);
 		batcher.draw(Assets.aboutButton, aboutButton.position.x, aboutButton.position.y, CAM_WIDTH / 2, CAM_WIDTH / 8);
+		batcher.draw(Assets.ufo, ufo.position.x, ufo.position.y, UFO.ROCKET_WIDTH, UFO.ROCKET_HEIGHT);
 		batcher.end();
 	}
 
